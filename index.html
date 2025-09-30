@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map Scale Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      background: #fdfdfd;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    button {
+      background: #0077cc;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .reset-btn {
+      background: #e74c3c;
+    }
+    .reset-btn:hover {
+      background: #c0392b;
+    }
+    #result {
+      margin: 15px 0;
+      padding: 10px;
+      background: #eef;
+      border-radius: 5px;
+      font-size: 0.95em;
+    }
+    #scalebar {
+      text-align: center;
+      margin-top: 20px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    /* Placeholder for ads */
+    .ad {
+      margin: 20px 0;
+      background: #f0f0f0;
+      text-align: center;
+      padding: 20px;
+      border: 1px dashed #aaa;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .button-group button {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+	
+  <h1>Map Scale Converter</h1>
+  <div class="container">
+	  
+    <label>Scale (1:n)</label>
+    <input type="number" id="scaleValue" placeholder="Enter scale denominator">
+
+    <label>Map Size</label>
+    <input type="number" id="mapValue" placeholder="Enter value">
+    <select id="mapUnit">
+      <option value="mm" selected>mm</option>
+      <option value="cm">cm</option>
+      <option value="in">inches</option>
+    </select>
+	  
+    <label>Real World Size</label>
+    <input type="number" id="realValue" placeholder="Enter value">
+    <select id="realUnit">
+      <option value="mm">mm</option>
+      <option value="cm">cm</option>
+      <option value="m" selected>m</option>
+      <option value="km">km</option>
+      <option value="in">inches</option>
+      <option value="ft">feet</option>
+      <option value="mi">miles</option>
+    </select>
+
+    <div class="button-group">
+      <button onclick="convertScale()">Convert</button>
+      <button class="reset-btn" onclick="resetForm()">Reset</button>
+    </div>
+
+    <div id="result"></div>
+	  
+	  <label>Scale Bar Style</label>
+	  <select id="scaleStyle">
+	    <option value="classic">Classic (black/white)</option>
+	    <option value="solid">Solid</option>
+	    <option value="ticks">Tick marks</option>
+	    <option value="subdivided">Subdivided start</option>
+	  </select>
+
+    <div id="scalebar">
+      <svg id="barSVG" width="400" height="70"></svg><br>
+      <button onclick="downloadScaleBar()">Download Scale Bar</button>
+    </div>
+
+    <div class="ad">
+      Ad space (Google AdSense goes here)
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Map Scale Converter | <a href="#">Privacy</a> | <a href="#">Contact</a>
+  </footer>
+
+  <script>
+    function unitToMeters(value, unit) {
+      const factors = { mm: 0.001, cm: 0.01, m: 1, km: 1000, in: 0.0254, ft: 0.3048, mi: 1609.34 };
+      return value * factors[unit];
+    }
+    function metersToUnit(value, unit) {
+      const factors = { mm: 1000, cm: 100, m: 1, km: 0.001, in: 39.3701, ft: 3.28084, mi: 0.000621371 };
+      return value * factors[unit];
+    }
+
+    function convertScale() {
+      const realVal = parseFloat(document.getElementById("realValue").value) || 0;
+      const realUnit = document.getElementById("realUnit").value;
+      const mapVal = parseFloat(document.getElementById("mapValue").value) || 0;
+      const mapUnit = document.getElementById("mapUnit").value;
+      let scaleVal = parseFloat(document.getElementById("scaleValue").value);
+
+      if (!scaleVal && realVal && mapVal) {
+        let realMeters = unitToMeters(realVal, realUnit);
+        let mapMeters = unitToMeters(mapVal, mapUnit);
+        scaleVal = realMeters / mapMeters;
